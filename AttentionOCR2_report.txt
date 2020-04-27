@@ -1,0 +1,208 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 13 files
+Detected 11 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: /home/wei/projects/AttentionOCR/dataset.py
+--------------------------------------------------------------------------------
+/home/wei/projects/AttentionOCR/dataset.py:408:4: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+File: /home/wei/projects/AttentionOCR/model/inception_v4.py
+--------------------------------------------------------------------------------
+/home/wei/projects/AttentionOCR/model/inception_v4.py:9:7: ERROR: Using member tf.contrib.slim in deprecated module tf.contrib. tf.contrib.slim cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+File: /home/wei/projects/AttentionOCR/model/tensorpack_model.py
+--------------------------------------------------------------------------------
+/home/wei/projects/AttentionOCR/model/tensorpack_model.py:42:13: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+--------------------------------------------------------------------------------
+File: /home/wei/projects/AttentionOCR/model/model.py
+--------------------------------------------------------------------------------
+/home/wei/projects/AttentionOCR/model/model.py:101:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+/home/wei/projects/AttentionOCR/model/model.py:102:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+/home/wei/projects/AttentionOCR/model/model.py:160:61: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+/home/wei/projects/AttentionOCR/model/model.py:161:36: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+/home/wei/projects/AttentionOCR/model/model.py:261:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+/home/wei/projects/AttentionOCR/model/model.py:262:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+/home/wei/projects/AttentionOCR/model/model.py:334:61: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+/home/wei/projects/AttentionOCR/model/model.py:335:36: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: '/home/wei/projects/AttentionOCR/'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/dataset.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/dataset.py'
+--------------------------------------------------------------------------------
+
+408:4: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/eval.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/eval.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/parse_dict.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/parse_dict.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/config.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/config.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/train.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/train.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/export.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/export.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/test.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/test.py'
+--------------------------------------------------------------------------------
+
+28:17: INFO: Renamed 'tf.gfile.FastGFile' to 'tf.compat.v1.gfile.FastGFile'
+29:28: INFO: Renamed 'tf.GraphDef' to 'tf.compat.v1.GraphDef'
+34:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/common.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/common.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/text_dataflow.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/text_dataflow.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/model/inception_v4.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/model/inception_v4.py'
+--------------------------------------------------------------------------------
+
+9:7: ERROR: Using member tf.contrib.slim in deprecated module tf.contrib. tf.contrib.slim cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+58:44: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+61:32: INFO: Changing tf.contrib.layers.variance_scaling_initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+353:30: INFO: Added keywords to args of function 'tf.reduce_mean'
+353:30: INFO: Renamed keyword argument for tf.reduce_mean from keep_dims to keepdims
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/model/tensorpack_model.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/model/tensorpack_model.py'
+--------------------------------------------------------------------------------
+
+41:22: INFO: Renamed 'tf.train.get_or_create_global_step' to 'tf.compat.v1.train.get_or_create_global_step'
+42:13: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+42:13: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+43:13: INFO: tf.train.cosine_decay requires manual check. To use learning rate decay schedules with TensorFlow 2.0, switch to the schedules in `tf.keras.optimizers.schedules`.
+
+43:13: INFO: Renamed 'tf.train.cosine_decay' to 'tf.compat.v1.train.cosine_decay'
+47:14: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+74:33: INFO: Changing labels arg of tf.nn.softmax_cross_entropy_with_logits to tf.stop_gradient(labels). Please check this transformation.
+
+84:29: INFO: Added keywords to args of function 'tf.reduce_sum'
+84:65: INFO: Added keywords to args of function 'tf.reduce_sum'
+103:16: INFO: Added keywords to args of function 'tf.argmax'
+104:16: INFO: Added keywords to args of function 'tf.reduce_max'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/model/__init__.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/model/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '/home/wei/projects/AttentionOCR/model/model.py'
+ outputting to '/home/wei/projects/AttentionOCR2.0/model/model.py'
+--------------------------------------------------------------------------------
+
+41:22: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+77:107: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+77:107: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+78:107: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+78:107: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+79:105: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+79:105: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+101:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+102:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+105:30: INFO: Added keywords to args of function 'tf.reduce_mean'
+108:38: INFO: Added keywords to args of function 'tf.shape'
+145:40: INFO: Added keywords to args of function 'tf.reduce_sum'
+160:32: INFO: Added keywords to args of function 'tf.cond'
+160:61: INFO: Added keywords to args of function 'tf.nn.embedding_lookup'
+160:61: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+161:36: INFO: Added keywords to args of function 'tf.nn.embedding_lookup'
+161:36: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+161:67: INFO: Added keywords to args of function 'tf.argmax'
+170:31: INFO: Added keywords to args of function 'tf.transpose'
+171:34: INFO: Added keywords to args of function 'tf.transpose'
+201:22: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+238:107: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+238:107: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+239:107: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+239:107: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+240:105: INFO: tf.initializers.orthogonal requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+240:105: INFO: Renamed 'tf.initializers.orthogonal' to 'tf.compat.v1.initializers.orthogonal'
+261:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+262:24: ERROR: tf.nn.dropout called without arguments, so automatic fix was disabled. tf.nn.dropout has changed the semantics of the second argument.
+265:30: INFO: Added keywords to args of function 'tf.reduce_mean'
+268:35: INFO: Added keywords to args of function 'tf.shape'
+302:44: INFO: Added keywords to args of function 'tf.reduce_sum'
+306:32: INFO: Added keywords to args of function 'tf.pad'
+334:32: INFO: Added keywords to args of function 'tf.cond'
+334:61: INFO: Added keywords to args of function 'tf.nn.embedding_lookup'
+334:61: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+335:36: INFO: Added keywords to args of function 'tf.nn.embedding_lookup'
+335:36: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+335:67: INFO: Added keywords to args of function 'tf.argmax'
+344:31: INFO: Added keywords to args of function 'tf.transpose'
+345:34: INFO: Added keywords to args of function 'tf.transpose'
+366:12: INFO: Added keywords to args of function 'tf.argmax'
+--------------------------------------------------------------------------------
+
