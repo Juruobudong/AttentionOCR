@@ -38,7 +38,7 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
         attention_array: (batch, h, w, seq_len) attention feature map
     """
     with tf.compat.v1.variable_scope(name, reuse=reuse) as scope:
-        regularizer = slim.l2_regularizer(weight_decay)
+        regularizer = tf.keras.regularizers.l2(0.5 * (weight_decay))
         with slim.arg_scope(inception_v4_arg_scope()):
             with slim.arg_scope([slim.batch_norm, slim.dropout], is_training=is_training):
                 net, end_points = inception_v4_base(images, final_endpoint=final_endpoint, scope=scope)  # Mixed_6h Mixed_7d
@@ -74,9 +74,9 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
                         W_hidden_wemd = tf.compat.v1.get_variable('W_hidden_wemd', [lstm_size, wemb_size], initializer=xavier_initializer(), regularizer=regularizer)
 
                     with tf.compat.v1.variable_scope('lstm_cell'): #orthogonal_initializer  xavier_initializer()
-                        lstm_W = tf.compat.v1.get_variable('lstm_W', [wemb_size, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
-                        lstm_U = tf.compat.v1.get_variable('lstm_U', [lstm_size, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
-                        lstm_Z = tf.compat.v1.get_variable('lstm_Z', [channel, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_W = tf.compat.v1.get_variable('lstm_W', [wemb_size, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_U = tf.compat.v1.get_variable('lstm_U', [lstm_size, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_Z = tf.compat.v1.get_variable('lstm_Z', [channel, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
                         lstm_b = tf.compat.v1.get_variable('lstm_b', [lstm_size*4], initializer=xavier_initializer())
                         
 
@@ -102,10 +102,10 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
                     c = tf.nn.dropout(c, rate = 1-keep_prob)
                     return h, c
 
-                mean_inputs = tf.reduce_mean(cnn_feature, [1, 2])
+                mean_inputs = tf.reduce_mean(input_tensor=cnn_feature, axis=[1, 2])
                 init_h = tf.tanh(tf.matmul(mean_inputs, W_init_h))
                 init_c = tf.tanh(tf.matmul(mean_inputs, W_init_c))
-                init_wemb = tf.zeros([tf.shape(mean_inputs)[0], wemb_size])
+                init_wemb = tf.zeros([tf.shape(input=mean_inputs)[0], wemb_size])
 
                 def attention_lstm(i, cnn_feature, wemb_prev, hidden_state, cell_state, output_array, attention_array):
                     """
@@ -142,7 +142,7 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
 
                     # attention context feature for lstm input
                     x = attention_x * tf.expand_dims(alpha, axis=2) #(batch, h*w, channel)
-                    attention_feature = tf.reduce_sum(x, axis=1) # (batch, channel)
+                    attention_feature = tf.reduce_sum(input_tensor=x, axis=1) # (batch, channel)
 
                     # compute new state by previous word embedding, attention feature and state
                     hidden_state, cell_state = _LSTMCell(wemb_prev, hidden_state, attention_feature, cell_state, keep_prob=dropout_keep_prob)
@@ -157,8 +157,8 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
                     output = tf.matmul(output, softmax_w) + softmax_b
 
                     # compute word embedding in different behaviours between train(by groundtruth) and test(by max_prob_word)
-                    wemb_prev = tf.cond(is_training, lambda: tf.nn.embedding_lookup(W_wemb, labels[:,i]), \
-                            lambda: tf.nn.embedding_lookup(W_wemb, tf.argmax(tf.nn.softmax(output), 1)) )
+                    wemb_prev = tf.cond(pred=is_training, true_fn=lambda: tf.nn.embedding_lookup(params=W_wemb, ids=labels[:,i]), \
+                            false_fn=lambda: tf.nn.embedding_lookup(params=W_wemb, ids=tf.argmax(input=tf.nn.softmax(output), axis=1)) )
 
                     output_array = output_array.write(i, output)
 
@@ -167,8 +167,8 @@ def inception_padding_model(images, labels, wemb_size, seq_len, num_classes, lst
                 _, _, _, _, _, output_array, attention_array = tf.while_loop(cond=lambda i, *_: i < seq_len, body=attention_lstm, \
                         loop_vars=(tf.constant(0, tf.int32), cnn_feature, init_wemb, init_h, init_c, output_array, attention_array))#, shape_invariants=
 
-                output_array = tf.transpose(output_array.stack(), [1, 0, 2]) # (batch, seq_len, num_classes)
-                attention_array = tf.transpose(attention_array.stack(), [1, 2, 0]) # (batch, seq_len, h*w)
+                output_array = tf.transpose(a=output_array.stack(), perm=[1, 0, 2]) # (batch, seq_len, num_classes)
+                attention_array = tf.transpose(a=attention_array.stack(), perm=[1, 2, 0]) # (batch, seq_len, h*w)
                 attention_array = tf.reshape(attention_array, [-1, height, width, seq_len])
 
             return output_array, attention_array
@@ -198,7 +198,7 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
         attention_array: (batch, h, w, seq_len) attention feature map
     """
     with tf.compat.v1.variable_scope(name, reuse=reuse) as scope:
-        regularizer = slim.l2_regularizer(weight_decay)
+        regularizer = tf.keras.regularizers.l2(0.5 * (weight_decay))
         with slim.arg_scope(inception_v4_arg_scope()):
             with slim.arg_scope([slim.batch_norm, slim.dropout], is_training=is_training):
                 net, end_points = inception_v4_base(images, final_endpoint=final_endpoint, scope=scope)  # Mixed_6h Mixed_7d
@@ -235,9 +235,9 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
                         W_hidden_wemd = tf.compat.v1.get_variable('W_hidden_wemd', [lstm_size, wemb_size], initializer=xavier_initializer(), regularizer=regularizer)
 
                     with tf.compat.v1.variable_scope('lstm_cell'): #orthogonal_initializer  xavier_initializer()
-                        lstm_W = tf.compat.v1.get_variable('lstm_W', [wemb_size, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
-                        lstm_U = tf.compat.v1.get_variable('lstm_U', [lstm_size, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
-                        lstm_Z = tf.compat.v1.get_variable('lstm_Z', [channel, lstm_size*4], initializer=tf.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_W = tf.compat.v1.get_variable('lstm_W', [wemb_size, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_U = tf.compat.v1.get_variable('lstm_U', [lstm_size, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
+                        lstm_Z = tf.compat.v1.get_variable('lstm_Z', [channel, lstm_size*4], initializer=tf.compat.v1.initializers.orthogonal(), regularizer=regularizer)
                         lstm_b = tf.compat.v1.get_variable('lstm_b', [lstm_size*4], initializer=xavier_initializer())
                         
 
@@ -262,10 +262,10 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
                     c = tf.nn.dropout(c, rate = 1-keep_prob)
                     return h, c
 
-                mean_inputs = tf.reduce_mean(cnn_feature, [1, 2])
+                mean_inputs = tf.reduce_mean(input_tensor=cnn_feature, axis=[1, 2])
                 init_h = tf.tanh(tf.matmul(mean_inputs, W_init_h))
                 init_c = tf.tanh(tf.matmul(mean_inputs, W_init_c))
-                init_y = tf.zeros([tf.shape(mean_inputs)[0], wemb_size])
+                init_y = tf.zeros([tf.shape(input=mean_inputs)[0], wemb_size])
 
                 def attention_lstm(i, cnn_feature, bboxes, wemb_prev, hidden_state, cell_state, output_array, attention_array):
                     """
@@ -299,11 +299,11 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
                         alpha = tf.nn.softmax(att, axis=0)
 
                         x = attention_x * alpha   #(h*w, c)
-                        attention_feature = tf.reduce_sum(x, axis=0)   # (c)
+                        attention_feature = tf.reduce_sum(input_tensor=x, axis=0)   # (c)
 
                         alpha = tf.reshape(alpha, [target_height, target_width])
                         paddings = [[offset_height, height-target_height-offset_height], [offset_width, width-offset_width-target_width]]
-                        alpha = tf.pad(alpha, paddings, 'CONSTANT')
+                        alpha = tf.pad(tensor=alpha, paddings=paddings, mode='CONSTANT')
 
                         return attention_feature, alpha
 
@@ -331,8 +331,8 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
                     output = tf.matmul(output, softmax_w) + softmax_b
 
                     # compute word embedding in different behaviours between train(by groundtruth) and test(by max_prob_word)
-                    wemb_prev = tf.cond(is_training, lambda: tf.nn.embedding_lookup(W_wemb, labels[:,i]), \
-                            lambda: tf.nn.embedding_lookup(W_wemb, tf.argmax(tf.nn.softmax(output), 1)) )
+                    wemb_prev = tf.cond(pred=is_training, true_fn=lambda: tf.nn.embedding_lookup(params=W_wemb, ids=labels[:,i]), \
+                            false_fn=lambda: tf.nn.embedding_lookup(params=W_wemb, ids=tf.argmax(input=tf.nn.softmax(output), axis=1)) )
 
                     output_array = output_array.write(i, output)
 
@@ -341,8 +341,8 @@ def inception_model(images, labels, bboxes, wemb_size, seq_len, num_classes, lst
                 _, _, _, _, _, _, output_array, attention_array = tf.while_loop(cond=lambda i, *_: i < seq_len, body=attention_lstm, \
                         loop_vars=(tf.constant(0, tf.int32), cnn_feature, bboxes, init_y, init_h, init_c, output_array, attention_array))#, shape_invariants=
 
-                output_array = tf.transpose(output_array.stack(), [1, 0, 2]) # (batch, seq_len, num_classes)
-                attention_array = tf.transpose(attention_array.stack(), [1, 2, 0]) # (batch, seq_len, h*w)
+                output_array = tf.transpose(a=output_array.stack(), perm=[1, 0, 2]) # (batch, seq_len, num_classes)
+                attention_array = tf.transpose(a=attention_array.stack(), perm=[1, 2, 0]) # (batch, seq_len, h*w)
                 attention_array = tf.reshape(attention_array, [-1, height, width, seq_len])
 
             return output_array, attention_array
@@ -363,7 +363,7 @@ if __name__=='__main__':
     #         lstm_size=512, is_training = is_training, dropout_keep_prob=dropout_keep_prob)
     print(outputs.get_shape().as_list())
     logits = tf.nn.softmax(outputs)
-    preds = tf.argmax(logits, axis=-1)
+    preds = tf.argmax(input=logits, axis=-1)
     
     with tf.compat.v1.Session(config = tf.compat.v1.ConfigProto(gpu_options=tf.compat.v1.GPUOptions(allow_growth=True), allow_soft_placement=True)) as sess:
         sess.run(tf.compat.v1.global_variables_initializer())

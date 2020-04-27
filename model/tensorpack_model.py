@@ -38,13 +38,13 @@ class AttentionOCR(ModelDesc):
                 tf.TensorSpec([], tf.float32, 'dropout_keep_prob')]
 
     def optimizer(self):
-        global_step = tf.train.get_or_create_global_step()
-        lr = tf.get_variable('learning_rate', initializer=cfg.learning_rate/100, trainable=False)
-        lr = tf.train.cosine_decay(lr, global_step, cfg.num_epochs*cfg.steps_per_epoch, alpha=cfg.min_lr)
+        global_step = tf.compat.v1.train.get_or_create_global_step()
+        lr = tf.compat.v1.get_variable('learning_rate', initializer=cfg.learning_rate/100, trainable=False)
+        lr = tf.compat.v1.train.cosine_decay(lr, global_step, cfg.num_epochs*cfg.steps_per_epoch, alpha=cfg.min_lr)
         tf.compat.v1.summary.scalar('learning_rate', lr)
         # add_moving_summary(lr)
         # opt = tf.train.MomentumOptimizer(lr, 0.9)
-        opt = tf.train.AdamOptimizer(lr, 0.9, 0.999)
+        opt = tf.compat.v1.train.AdamOptimizer(lr, 0.9, 0.999)
         return opt
 
     def get_inferene_tensor_names(self):
@@ -71,7 +71,7 @@ class AttentionOCR(ModelDesc):
         def _step_loss(k, total_xen_loss):
             # cross_entropy_loss = tf.compat.v1.losses.sparse_softmax_cross_entropy(label[:,k], outputs[:,k,:])
             label_smoothed = label_smoothing(tf.one_hot(label[:,k], cfg.num_classes, axis=-1))
-            cross_entropy_loss = tf.nn.softmax_cross_entropy_with_logits(logits=outputs[:,k,:], labels=label_smoothed)
+            cross_entropy_loss = tf.nn.softmax_cross_entropy_with_logits(logits=outputs[:,k,:], labels=tf.stop_gradient(label_smoothed))
             cross_entropy_loss *= mask[:,k]
             return k+1, total_xen_loss + cross_entropy_loss
 
@@ -81,7 +81,7 @@ class AttentionOCR(ModelDesc):
             loop_vars=(tf.constant(0, tf.int32), tf.constant(np.zeros(cfg.batch_size), tf.float32))
         )
 
-        cross_entropy_loss = tf.reduce_sum(cross_entropy_loss) / tf.reduce_sum(mask)
+        cross_entropy_loss = tf.reduce_sum(input_tensor=cross_entropy_loss) / tf.reduce_sum(input_tensor=mask)
         reg_loss = tf.add_n(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES))
 
         total_loss = reg_loss + cross_entropy_loss
@@ -100,8 +100,8 @@ class AttentionOCR(ModelDesc):
         tf.compat.v1.summary.text('label', tf.as_string(label[0,:]))
 
         logits = tf.nn.softmax(outputs, name='logits')
-        preds = tf.argmax(logits, axis=-1, name='sequence_preds')
-        probs = tf.reduce_max(logits, axis=-1, name='sequence_probs')
+        preds = tf.argmax(input=logits, axis=-1, name='sequence_preds')
+        probs = tf.reduce_max(input_tensor=logits, axis=-1, name='sequence_probs')
         tf.compat.v1.summary.tensor_summary('pred', preds[0,:], summary_description='preds')
         tf.compat.v1.summary.text('pred', tf.as_string(preds[0,:]))
 

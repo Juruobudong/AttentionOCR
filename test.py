@@ -25,13 +25,13 @@ class TextRecognition(object):
     def init_model(self):
         self.graph = tf.Graph()
         with self.graph.as_default():
-            with tf.gfile.FastGFile(self.pb_file, 'rb') as f:
-                graph_def = tf.GraphDef()
+            with tf.compat.v1.gfile.FastGFile(self.pb_file, 'rb') as f:
+                graph_def = tf.compat.v1.GraphDef()
                 graph_def.ParseFromString(f.read())
                 _ = tf.import_graph_def(graph_def, name='')
         
         
-        self.sess = tf.Session(graph=self.graph)
+        self.sess = tf.compat.v1.Session(graph=self.graph)
         
         self.img_ph = self.sess.graph.get_tensor_by_name('image:0')
         self.label_ph = self.sess.graph.get_tensor_by_name('label:0')

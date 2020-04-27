@@ -55,10 +55,10 @@ def inception_arg_scope(weight_decay=0.00004,
         normalizer_params = {}
     # Set weight_decay for weights in Conv and FC layers.
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        weights_regularizer=slim.l2_regularizer(weight_decay)):
+                        weights_regularizer=tf.keras.regularizers.l2(0.5 * (weight_decay))):
         with slim.arg_scope(
             [slim.conv2d],
-            weights_initializer=slim.variance_scaling_initializer(),
+            weights_initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=2.0),
             activation_fn=activation_fn,
             normalizer_fn=normalizer_fn,
             normalizer_params=normalizer_params) as sc:
@@ -350,7 +350,7 @@ def inception_v4(inputs, num_classes=1001, is_training=True,
                         net = slim.avg_pool2d(net, kernel_size, padding='VALID',
                                             scope='AvgPool_1a')
                     else:
-                        net = tf.reduce_mean(net, [1, 2], keep_dims=True,
+                        net = tf.reduce_mean(input_tensor=net, axis=[1, 2], keepdims=True,
                                            name='global_pool')
                     end_points['global_pool'] = net
                     if not num_classes:
